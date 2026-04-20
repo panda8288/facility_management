@@ -42,6 +42,7 @@ app.post("/webhook", async (req, res) => {
           }
         }
     }
+    else {
 
     // 🧠 STAFF COMMAND: done <id>
     if (incomingMsg.startsWith("done")) {
@@ -80,6 +81,7 @@ app.post("/webhook", async (req, res) => {
       const ticketId = result.rows[0].id;
 
       twiml.message(`✅ Complaint registered!\nTicket ID: #${ticketId}`);
+    }
     }
 
     res.writeHead(200, { "Content-Type": "text/xml" });
