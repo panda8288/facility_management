@@ -35,7 +35,7 @@ app.post("/webhook", async (req, res) => {
 const state = await pool.query(
   "SELECT step from onboarding WHERE phone = $1",[phone]);
 const user_state = state.step;
-if { user_state === 'awaiting_flat'} {
+if ( user_state === 'awaiting_flat') {
   await pool.query(
   "UPDATE  residents (flat_number) SET VALUES($1)",[]);
 }
