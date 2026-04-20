@@ -44,7 +44,7 @@ app.post("/webhook", async (req, res) => {
           if (result.rowCount === 0) {
             twiml.message(`❌ Ticket #${ticketId} not found`);
           } else {
-            twiml.message(`✅ Your Ticket #${ticketId} is marked as resolved`);
+            twiml.message(`✅ Your Ticket #${ticketId} is marked as resolved. If not satisfied with the service Kindly reply with "reopen #${ticketId}"`);
           }
         }
       }
