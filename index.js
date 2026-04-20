@@ -41,6 +41,7 @@ app.post("/webhook", async (req, res) => {
             twiml.message(`✅ Your Ticket #${ticketId} is marked as reopened.`);
           }
         }
+    }
 
     // 🧠 STAFF COMMAND: done <id>
     if (incomingMsg.startsWith("done")) {
