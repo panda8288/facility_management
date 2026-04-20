@@ -27,7 +27,7 @@ app.post("/webhook", async (req, res) => {
     const cmuser = await pool.query("SELECT id FROM residents WHERE phone=$1",[phone]);
   
 
-  if (cmuser.rowCount===0){
+  if (cmuser){
     const resident=cmuser.rows[0];
     const residentId=resident.id;
     const state = await pool.query(
