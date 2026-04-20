@@ -14,16 +14,38 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: false }));
 
-app.post("/webhook", (req, res) => {
-  console.log("Incoming:", req.body.Body);
+app.post("/webhook", async (req, res) => {
+  const message = req.body.Body;
+  const phone = req.body.From.replace("whatsapp:", "");
 
-  const twiml = new MessagingResponse();
-  twiml.message("✅ Complaint received. We’re on it!");
+  console.log("Incoming:", message);
 
-  res.writeHead(200, { "Content-Type": "text/xml" });
-  res.end(twiml.toString());
+  try {
+    const result = await pool.query(
+      "INSERT INTO complaints (phone, message) VALUES ($1, $2) RETURNING id",
+      [phone, message]
+    );
+
+    const ticketId = result.rows[0].id;
+
+    const { MessagingResponse } = require("twilio").twiml;
+    const twiml = new MessagingResponse();
+
+    twiml.message(`✅ Complaint registered!\nTicket ID: #${ticketId}`);
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml.toString());
+
+  } catch (err) {
+    console.error("DB ERROR:", err);
+
+    const twiml = new (require("twilio").twiml.MessagingResponse)();
+    twiml.message("⚠️ Something went wrong. Please try again.");
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml.toString());
+  }
 });
-
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
