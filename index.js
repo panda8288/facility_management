@@ -24,7 +24,7 @@ app.post("/webhook", async (req, res) => {
   const twiml = new MessagingResponse();
 
   try {
-    const cmuser = await pool.query("SELECT id FROM residents WHERE phone=$1",[phone]);
+/*    const cmuser = await pool.query("SELECT id FROM residents WHERE phone=$1",[phone]);
   
 
   if (cmuser){
@@ -42,7 +42,7 @@ await pool.query(
           }
   else {
             twiml.message(`Please enter your flat number (e.g. A-01`);
-          }  
+          }  */
     //   REOPEN COMMAND: reopen <id>
     if (incomingMsg.startsWith("reopen")) {
       const parts = incomingMsg.split(" ");
