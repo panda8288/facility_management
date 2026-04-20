@@ -24,25 +24,7 @@ app.post("/webhook", async (req, res) => {
   const twiml = new MessagingResponse();
 
   try {
-/*    const cmuser = await pool.query("SELECT id FROM residents WHERE phone=$1",[phone]);
-  
 
-  if (cmuser){
-    const resident=cmuser.rows[0];
-    const residentId=resident.id;
-    const state = await pool.query(
-      "SELECT step from onboarding WHERE phone = $1",[phone]);
-    const user_state = state.step;
-if ( user_state === 'awaiting_flat') {
-  await pool.query(
-  "UPDATE  residents (flat_number) SET VALUES($1)",[incomingMsg]);
-}
-await pool.query(
-  "INSERT INTO complaints(resident_id,message) VALUES($1,$2)",[residentId,message]);
-          }
-  else {
-            twiml.message(`Please enter your flat number (e.g. A-01`);
-          }  */
     //   REOPEN COMMAND: reopen <id>
     if (incomingMsg.startsWith("reopen")) {
       const parts = incomingMsg.split(" ");
