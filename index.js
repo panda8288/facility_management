@@ -37,7 +37,7 @@ const state = await pool.query(
 const user_state = state.step;
 if ( user_state === 'awaiting_flat') {
   await pool.query(
-  "UPDATE  residents (flat_number) SET VALUES($1)",[]);
+  "UPDATE  residents (flat_number) SET VALUES($1)",[incomingMsg]);
 }
 await pool.query(
   "INSERT INTO complaints(resident_id,message) VALUES($1,$2)",[residentId,message]);
