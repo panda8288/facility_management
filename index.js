@@ -1,3 +1,5 @@
+const STAFF_NUMBERS = [ "918390620818", "919923508168"];
+
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -15,26 +17,63 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: false }));
 
 app.post("/webhook", async (req, res) => {
-  const message = req.body.Body;
+  const incomingMsg = req.body.Body.trim().toLowerCase();
   const phone = req.body.From.replace("whatsapp:", "");
 
-  console.log("Incoming:", message);
+  const { MessagingResponse } = require("twilio").twiml;
+  const twiml = new MessagingResponse();
 
   try {
-    const result = await pool.query(
-      "INSERT INTO complaints (phone, message) VALUES ($1, $2) RETURNING id",
-      [phone, message]
-    );
+    // 🧠 STAFF COMMAND: done <id>
+    if (incomingMsg.startsWith("done")) {
+      
+      if (!STAFF_NUMBERS.includes(phone)) {
+        twiml.message("❌ You are not authorized to close tickets");
+      } else {
+        const parts = incomingMsg.split(" ");
+        const ticketId = parts[1];
 
-    const ticketId = result.rows[0].id;
+        if (!ticketId) {
+          twiml.message("⚠️ Please provide ticket ID. Example: done 12");
+        } else {
+          const result = await pool.query(
+            "UPDATE complaints SET status = 'closed' WHERE id = $1 RETURNING id",
+            [ticketId]
+          );
 
-    const { MessagingResponse } = require("twilio").twiml;
-    const twiml = new MessagingResponse();
+          if (result.rowCount === 0) {
+            twiml.message(`❌ Ticket #${ticketId} not found`);
+          } else {
+            twiml.message(`✅ Ticket #${ticketId} marked as resolved`);
+          }
+        }
+      }
 
-    twiml.message(`✅ Complaint registered!\nTicket ID: #${ticketId}`);
+    } else {
+      // 🧾 NORMAL COMPLAINT FLOW
+      const message = req.body.Body || "No message";
+
+      const result = await pool.query(
+        "INSERT INTO complaints (phone, message) VALUES ($1, $2) RETURNING id",
+        [phone, message]
+      );
+
+      const ticketId = result.rows[0].id;
+
+      twiml.message(`✅ Complaint registered!\nTicket ID: #${ticketId}`);
+    }
 
     res.writeHead(200, { "Content-Type": "text/xml" });
     res.end(twiml.toString());
+
+  } catch (err) {
+    console.error(err);
+    twiml.message("⚠️ Something went wrong");
+
+    res.writeHead(200, { "Content-Type": "text/xml" });
+    res.end(twiml.toString());
+  }
+});
 
   } catch (err) {
     console.error("DB ERROR:", err);
