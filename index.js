@@ -75,16 +75,7 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-  } catch (err) {
-    console.error("DB ERROR:", err);
-
-    const twiml = new (require("twilio").twiml.MessagingResponse)();
-    twiml.message("⚠️ Something went wrong. Please try again.");
-
-    res.writeHead(200, { "Content-Type": "text/xml" });
-    res.end(twiml.toString());
-  }
-});
+  
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
