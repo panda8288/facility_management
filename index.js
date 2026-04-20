@@ -35,6 +35,12 @@ app.post("/webhook", async (req, res) => {
             "UPDATE complaints SET status = 'reopend' WHERE id = $1 RETURNING id",
             [ticketId]
           );
+        if (result.rowCount === 0) {
+            twiml.message(`❌ Ticket #${ticketId} not found`);
+          } else {
+            twiml.message(`✅ Your Ticket #${ticketId} is marked as reopened.`);
+          }
+        }
 
     // 🧠 STAFF COMMAND: done <id>
     if (incomingMsg.startsWith("done")) {
