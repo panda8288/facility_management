@@ -1,4 +1,4 @@
-const STAFF_NUMBERS = [ "918390620818", "919923508168"];
+const STAFF_NUMBERS = [ "+918390620818", "+919923508168"];
 
 const { Pool } = require("pg");
 
