@@ -24,6 +24,18 @@ app.post("/webhook", async (req, res) => {
   const twiml = new MessagingResponse();
 
   try {
+    //   REOPEN COMMAND: reopen <id>
+    if (incomingMsg.startsWith("reopen")) {
+      const parts = incomingMsg.split(" ");
+      const ticketId = parts[1];
+      if (!ticketId) {
+          twiml.message("⚠️ Please provide ticket ID. Example: done 12");
+        } else {
+          const result = await pool.query(
+            "UPDATE complaints SET status = 'reopend' WHERE id = $1 RETURNING id",
+            [ticketId]
+          );
+
     // 🧠 STAFF COMMAND: done <id>
     if (incomingMsg.startsWith("done")) {
       
