@@ -24,11 +24,11 @@ app.post("/webhook", async (req, res) => {
   const twiml = new MessagingResponse();
 
   try {
-    const user = await pool.query("SELECT * FROM residents WHERE phone=$1",[phone]);
+    const cmuser = await pool.query("SELECT id FROM residents WHERE phone=$1",[phone]);
   
 
-  if (user.rowCount===0){
-    const resident=user.rows[0];
+  if (cmuser.rowCount===0){
+    const resident=cmuser.rows[0];
     const residentId=resident.id;
     const state = await pool.query(
       "SELECT step from onboarding WHERE phone = $1",[phone]);
