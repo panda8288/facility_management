@@ -1,5 +1,5 @@
 const phone = req.body.From.replace("whatsapp:","");
-const user = await pool.query("SELECT * FROM residents WHERE phone=$1",[phone]);
+const user = await pool.query("SELECT id FROM residents WHERE phone = $1",[phone]);
 const resident=user.rows[0];
 const residentId=resident.id;
 if (resident.rowCount===0) {
