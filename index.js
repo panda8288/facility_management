@@ -8,56 +8,15 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
 
 const STAFF_NUMBERS = ["+918390620818", "+919923508168"];
 
-app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); const phone = req.body.From.replace("whatsapp:", "");
+app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); 
 
-const MessagingResponse = twilio.twiml.MessagingResponse; const twiml = new MessagingResponse();
+const phone = req.body.From.replace("whatsapp:", "");
 
-try { // 1. Check onboarding state 
-  const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
+const MessagingResponse = twilio.twiml.MessagingResponse;
+                                      
+const twiml = new MessagingResponse();
 
-if (onboarding.rows.length > 0) {
-  const step = onboarding.rows[0].step;
-
-  if (step === "awaiting_flat") {
-    const flat = incomingMsg.toUpperCase();
-
-    const resident = await pool.query(
-      "INSERT INTO residents (phone, flat_number) VALUES ($1, $2) RETURNING id",
-      [phone, flat]
-    );
-
-    await pool.query("DELETE FROM onboarding WHERE phone = $1", [phone]);
-
-    twiml.message(`✅ Registered!
-
-Flat: ${flat}
-
-You can now report issues 👍`); }
-
-res.type("text/xml").send(twiml.toString());
-  return;
-}
-
-// 2. Check if resident exists
-const user = await pool.query(
-  "SELECT * FROM residents WHERE phone = $1",
-  [phone]
-);
-
-if (user.rows.length === 0) {
-  await pool.query(
-    "INSERT INTO onboarding (phone, step) VALUES ($1, 'awaiting_flat')",
-    [phone]
-  );
-
-  twiml.message("👋 Welcome! Please enter your flat number (e.g. A-101)");
-  res.type("text/xml").send(twiml.toString());
-  return;
-}
-
-const resident = user.rows[0];
-
-// 3. Staff done flow
+try {// 1. Staff done flow
 const msgLower = incomingMsg.toLowerCase().trim();
 const doneMatch = msgLower.match(/^done\s+#?(\d+)$/);
 if (doneMatch) {
@@ -102,6 +61,56 @@ if (doneMatch) {
 
   return res.type("text/xml").send(twiml.toString()); // 🚨 MUST RETURN
 }
+
+  
+  
+  
+  
+  // 2. Check onboarding state 
+  const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
+
+if (onboarding.rows.length > 0) {
+  const step = onboarding.rows[0].step;
+
+  if (step === "awaiting_flat") {
+    const flat = incomingMsg.toUpperCase();
+
+    const resident = await pool.query(
+      "INSERT INTO residents (phone, flat_number) VALUES ($1, $2) RETURNING id",
+      [phone, flat]
+    );
+
+    await pool.query("DELETE FROM onboarding WHERE phone = $1", [phone]);
+
+    twiml.message(`✅ Registered!
+
+Flat: ${flat}
+
+You can now report issues 👍`); }
+
+res.type("text/xml").send(twiml.toString());
+  return;
+}
+
+// 3. Check if resident exists
+const user = await pool.query(
+  "SELECT * FROM residents WHERE phone = $1",
+  [phone]
+);
+
+if (user.rows.length === 0) {
+  await pool.query(
+    "INSERT INTO onboarding (phone, step) VALUES ($1, 'awaiting_flat')",
+    [phone]
+  );
+
+  twiml.message("👋 Welcome! Please enter your flat number (e.g. A-101)");
+  res.type("text/xml").send(twiml.toString());
+  return;
+}
+
+const resident = user.rows[0];
+
 
 
 // 4. Rating flow
