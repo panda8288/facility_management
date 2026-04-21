@@ -118,7 +118,7 @@ if (doneMatch) {
 
 // ================= IMAGE HANDLING =================
 const numMedia = Number(req.body.NumMedia);
-
+console.log(numMedia);
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
