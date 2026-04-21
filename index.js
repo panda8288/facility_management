@@ -114,7 +114,7 @@ if (doneMatch) {
     2 -> 😕
     3 -> 😐
     4 -> 🙂
-    5 -> 😄
+    5 -> 😄`
   });
 
   twiml.message("Closed & user notified");
