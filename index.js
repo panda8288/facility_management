@@ -5,6 +5,10 @@ const { Pool } = require("pg");
 const twilio = require("twilio"); 
 const axios = require("axios"); 
 const admin = require("firebase-admin");
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+const client = twilio(accountSid, authToken);
 
 // ================= FIREBASE SETUP ================= 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -161,7 +165,7 @@ const medialUrl = req.body.MediaUrl0;
 🕒 Time: ${new Date().toLocaleString()}
 `;
 
-await twilio.messages.create({
+await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
