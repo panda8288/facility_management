@@ -173,11 +173,3 @@ res.type("text/xml").send(twiml.toString());
 } catch (err) { console.error(err); twiml.message("⚠️ Error occurred"); res.type("text/xml").send(twiml.toString()); } });
 
 app.listen(process.env.PORT || 3000, () => { console.log("Server running"); });
-
-/* SQL REQUIRED:
-
-CREATE TABLE residents ( id SERIAL PRIMARY KEY, phone VARCHAR(20) UNIQUE, flat_number VARCHAR(10) );
-
-CREATE TABLE onboarding ( phone VARCHAR(20) PRIMARY KEY, step VARCHAR(20) );
-
-CREATE TABLE complaints ( id SERIAL PRIMARY KEY, resident_id INTEGER, message TEXT, image_url TEXT, status VARCHAR(20) DEFAULT 'open', rating INTEGER, awaiting_rating BOOLEAN DEFAULT false, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ); */
