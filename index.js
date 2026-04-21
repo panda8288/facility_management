@@ -127,7 +127,7 @@ console.log(numMedia);
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
-  console.log(medialUrl);
+  console.log(mediaUrl);
      const message = `
 📢 *New Complaint*
 
