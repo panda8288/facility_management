@@ -1,6 +1,10 @@
-// index.js require("dotenv").config();
+// index.js 
+require("dotenv").config();
 
-const express = require("express"); const { Pool } = require("pg"); const twilio = require("twilio");
+const express = require("express"); 
+const { Pool } = require("pg"); 
+const twilio = require("twilio");
+const axios = require("axios");
 
 const app = express(); app.use(express.urlencoded({ extended: false }));
 
