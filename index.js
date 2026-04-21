@@ -1,12 +1,7 @@
 // index.js require("dotenv").config();
 
-const express = require("express"); 
-const { Pool } = require("pg"); 
-const twilio = require("twilio");
-const axios = require("axios");
-//const bucket = require("./firebase");
-const admin = require("firebase-admin");
-module.exports=bucket;
+const express = require("express"); const { Pool } = require("pg"); const twilio = require("twilio");
+
 const app = express(); app.use(express.urlencoded({ extended: false }));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
@@ -110,45 +105,57 @@ Please rate: 😡 😕 😐 🙂 😄` });
 }
 
 // 4. Image handling (before rating & complaint)
-// ================= IMAGE HANDLING =================
-const numMedia = Number(req.body.NumMedia);
+const numMedia = parseInt(req.body.NumMedia || "0");
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
   const mediaType = req.body.MediaContentType0;
 
-  console.log("Downloading from Twilio...");
-
-  const response = await axios.get(mediaUrl, {
-    responseType: "arraybuffer",
-    auth: {
-      username: process.env.TWILIO_ACCOUNT_SID,
-      password: process.env.TWILIO_AUTH_TOKEN
-    }
-  });
-
-  const fileName = `complaints/${Date.now()}_${phone}.jpg`;
-  const file = bucket.file(fileName);
-
-  console.log("Uploading to Firebase...");
-
-  await file.save(response.data, {
-    metadata: { contentType: mediaType }
-  });
-
-  await file.makePublic();
-
-  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-  console.log("Firebase URL:", publicUrl);
-
   const result = await pool.query(
-    "INSERT INTO complaints (resident_id, message, image_url) VALUES ($1,$2,$3) RETURNING id",
-    [resident.id, incomingMsg || "(image)", publicUrl]
+    "INSERT INTO complaints (resident_id, message, image_url) VALUES ($1, $2, $3) RETURNING id",
+    [resident.id, incomingMsg || "(image)", mediaUrl]
   );
 
-  twiml.message(`Image complaint saved. Ticket #${result.rows[0].id}`);
-  return res.type("text/xml").send(twiml.toString());
+  const ticketId = result.rows[0].id;
+
+  twiml.message(`📸 Complaint with image received!
+
+Ticket ID: #${ticketId}`);
+
+res.type("text/xml").send(twiml.toString());
+  return;
+}
+
+// 5. Rating flow
+const emojiMap = {
+  "😡": 1,
+  "😕": 2,
+  "😐": 3,
+  "🙂": 4,
+  "😄": 5
+};
+
+const rating = emojiMap[incomingMsg];
+
+if (rating) {
+  const pending = await pool.query(
+    `SELECT id FROM complaints WHERE resident_id = $1 AND awaiting_rating = true ORDER BY created_at DESC LIMIT 1`,
+    [resident.id]
+  );
+
+  if (pending.rows.length > 0) {
+    const ticketId = pending.rows[0].id;
+
+    await pool.query(
+      "UPDATE complaints SET rating = $1, awaiting_rating = false WHERE id = $2",
+      [rating, ticketId]
+    );
+
+    twiml.message("🙏 Thanks for your feedback!");
+
+    res.type("text/xml").send(twiml.toString());
+    return;
+  }
 }
 
 // 5. Create complaint
