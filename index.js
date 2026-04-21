@@ -65,6 +65,7 @@ app.post("/webhook", async (req, res) => {
           if (result.rowCount === 0) {
             twiml.message(`❌ Ticket #${ticketId} not found`);
           } else {
+            const phone = await pool.query("SELECT phone FROM complaints where id = $1;");
             twiml.message(`✅ Your Ticket #${ticketId} is marked as resolved. If not satisfied with the service, kindly reply with "reopen ${ticketId}"`);
           }
         }
