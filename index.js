@@ -11,7 +11,7 @@ const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 console.log(serviceAccount.project_id);
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount),storageBucket:serviceAccount.project_id+".firebasestorage.com"});
 const bucket = admin.storage().bucket();
-console.log(bucket);
+console.log(bucket.name);
 
 // ================= APP SETUP ================= 
 const app = express(); app.use(express.urlencoded({ extended: false }));
