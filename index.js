@@ -109,7 +109,7 @@ if (doneMatch) {
   await client.messages.create({
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
-    body: `Your Ticket #${ticketId} is resolved. \n Kindly Rate Service: 
+    body: `Your Ticket *#${ticketId}* is resolved. \n Kindly Rate Service: 
     1  ➡️  😡 
     2  ➡️  😕
     3  ➡️  😐
