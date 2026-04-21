@@ -7,7 +7,8 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-
+const incomingMsg = req.body.Body;
+const fromUser = req.body.From;
 const client = twilio(accountSid, authToken);
 
 // ================= FIREBASE SETUP ================= 
@@ -160,8 +161,8 @@ const mediaUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
 
-👤 From: req.body.From;
-📝 Message: req.body.Body;
+👤 From: ${fromUser};
+📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
 
