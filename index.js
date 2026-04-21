@@ -165,12 +165,20 @@ const medialUrl = req.body.MediaUrl0;
 🕒 Time: ${new Date().toLocaleString()}
 `;
 
-await client.messages.create({
+if (!mediaUrl) {
+    await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+});
+
+  } else {await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
   mediaUrl:[mediaUrl],
 });
+};
      const result = await pool.query(
   "INSERT INTO complaints (resident_id, message) VALUES ($1,$2) RETURNING id",
   [resident.id, incomingMsg]
