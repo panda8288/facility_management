@@ -156,7 +156,7 @@ if (numMedia > 0) {
 
 // ================= NORMAL COMPLAINT =================
 const SUPERVISOR_WHATSAPP='whatsapp:+918390620818';
-const medialUrl = req.body.MediaUrl0;
+const mediaUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
 
