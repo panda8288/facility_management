@@ -12,7 +12,8 @@ app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body ||
 
 const MessagingResponse = twilio.twiml.MessagingResponse; const twiml = new MessagingResponse();
 
-try { // 1. Check onboarding state const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
+try { // 1. Check onboarding state 
+  const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
 
 if (onboarding.rows.length > 0) {
   const step = onboarding.rows[0].step;
