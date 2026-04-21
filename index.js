@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 const twilio = require("twilio");
 const axios = require("axios");
 const bucket = require("./firebase");
-
+module.exports=bucket;
 const app = express(); app.use(express.urlencoded({ extended: false }));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
