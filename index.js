@@ -58,51 +58,51 @@ if (user.rows.length === 0) {
 const resident = user.rows[0];
 
 // 3. Staff done flow
-const msgLower = incomingMsg.toLowerCase();
-
-if (msgLower.startsWith("done")) {
+const msgLower = incomingMsg.toLowerCase().trim();
+const doneMatch = msgLower.match(/^done\s+#?(\d+)$/);
+if (doneMatch) {
   if (!STAFF_NUMBERS.includes(phone)) {
     twiml.message("❌ Not authorized");
-  } else {
-    const parts = msgLower.split(" ");
-    const ticketId = parts[1]?.replace("#", "");
-
-    const result = await pool.query(
-      "UPDATE complaints SET status = 'closed', awaiting_rating = true WHERE id = $1 RETURNING resident_id",
-      [ticketId]
-    );
-
-    if (result.rowCount === 0) {
-      twiml.message("❌ Ticket not found");
-    } else {
-      const residentId = result.rows[0].resident_id;
-
-      // fetch resident phone
-      const resUser = await pool.query(
-        "SELECT phone FROM residents WHERE id = $1",
-        [residentId]
-      );
-
-      const userPhone = resUser.rows[0].phone;
-
-      // send message to USER (not staff)
-      const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-      await client.messages.create({
-        from: process.env.TWILIO_WHATSAPP_NUMBER,
-        to: `whatsapp:${userPhone}`,
-        body: `✅ Your complaint (Ticket #${ticketId}) is resolved.
-
-Please rate: 😡 😕 😐 🙂 😄` });
-
-// confirm to staff
-      twiml.message(`✅ Ticket #${ticketId} closed & user notified`);
-    }
+    return res.type("text/xml").send(twiml.toString());
   }
 
-  res.type("text/xml").send(twiml.toString());
-  return;
+  const ticketId = doneMatch[1];
+
+  const result = await pool.query(
+    "UPDATE complaints SET status = 'closed', awaiting_rating = true WHERE id = $1 RETURNING resident_id",
+    [ticketId]
+  );
+
+  if (result.rowCount === 0) {
+    twiml.message("❌ Ticket not found");
+    return res.type("text/xml").send(twiml.toString());
+  }
+
+  const residentId = result.rows[0].resident_id;
+
+  const resUser = await pool.query(
+    "SELECT phone FROM residents WHERE id = $1",
+    [residentId]
+  );
+
+  const userPhone = resUser.rows[0].phone;
+
+  const client = require("twilio")(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+
+  await client.messages.create({
+    from: process.env.TWILIO_WHATSAPP_NUMBER,
+    to: `whatsapp:${userPhone}`,
+    body: `✅ Your complaint (Ticket #${ticketId}) is resolved.\n\nPlease rate: 😡 😕 😐 🙂 😄`
+  });
+
+  twiml.message(`✅ Ticket #${ticketId} closed & user notified`);
+
+  return res.type("text/xml").send(twiml.toString()); // 🚨 MUST RETURN
 }
+
 
 // 4. Rating flow
 const emojiMap = {
