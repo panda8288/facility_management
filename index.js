@@ -9,7 +9,7 @@ const admin = require("firebase-admin");
 // ================= FIREBASE SETUP ================= 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 console.log(serviceAccount.project_id);
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount),storageBucket:serviceAccount.project_id+".firebasestorage.com"});
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount),storageBucket:serviceAccount.project_id+".firebasestorage.app"});
 const bucket = admin.storage().bucket();
 console.log(bucket.name);
 
