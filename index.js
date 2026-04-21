@@ -161,7 +161,7 @@ const medialUrl = req.body.MediaUrl0;
 🕒 Time: ${new Date().toLocaleString()}
 `;
 
-await client.messages.create({
+await twilio.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
