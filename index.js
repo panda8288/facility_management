@@ -151,7 +151,23 @@ if (numMedia > 0) {
 }
 
 // ================= NORMAL COMPLAINT =================
-const result = await pool.query(
+const SUPERVISOR_WHATSAPP='whatsapp:+918390620818';
+const medialUrl = req.body.MediaUrl0;
+     const message = `
+📢 *New Complaint*
+
+👤 From: ${fromUser}
+📝 Message: ${incomingMsg}
+🕒 Time: ${new Date().toLocaleString()}
+`;
+
+await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+  mediaUrl:[mediaUrl],
+});
+     const result = await pool.query(
   "INSERT INTO complaints (resident_id, message) VALUES ($1,$2) RETURNING id",
   [resident.id, incomingMsg]
 );
