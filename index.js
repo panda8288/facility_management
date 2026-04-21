@@ -6,68 +6,13 @@ const app = express(); app.use(express.urlencoded({ extended: false }));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
-const STAFF_NUMBERS = ["+918390620818", "+919923508168"];
+const STAFF_NUMBERS = ["9198XXXXXXX"];
 
-app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); 
+app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); const phone = req.body.From.replace("whatsapp:", "");
 
-const phone = req.body.From.replace("whatsapp:", "");
+const MessagingResponse = twilio.twiml.MessagingResponse; const twiml = new MessagingResponse();
 
-const MessagingResponse = twilio.twiml.MessagingResponse;
-                                      
-const twiml = new MessagingResponse();
-
-try {// 1. Staff done flow
-const msgLower = incomingMsg.toLowerCase().trim();
-const doneMatch = msgLower.match(/^done\s+#?(\d+)$/);
-if (doneMatch) {
-  if (!STAFF_NUMBERS.includes(phone)) {
-    twiml.message("❌ Not authorized");
-    return res.type("text/xml").send(twiml.toString());
-  }
-
-  const ticketId = doneMatch[1];
-
-  const result = await pool.query(
-    "UPDATE complaints SET status = 'closed', awaiting_rating = true WHERE id = $1 RETURNING resident_id",
-    [ticketId]
-  );
-
-  if (result.rowCount === 0) {
-    twiml.message("❌ Ticket not found");
-    return res.type("text/xml").send(twiml.toString());
-  }
-
-  const residentId = result.rows[0].resident_id;
-
-  const resUser = await pool.query(
-    "SELECT phone FROM residents WHERE id = $1",
-    [residentId]
-  );
-
-  const userPhone = resUser.rows[0].phone;
-
-  const client = require("twilio")(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-  );
-
-  await client.messages.create({
-    from: process.env.TWILIO_WHATSAPP_NUMBER,
-    to: `whatsapp:${userPhone}`,
-    body: `✅ Your complaint (Ticket #${ticketId}) is resolved.\n\nPlease rate: 😡 😕 😐 🙂 😄`
-  });
-
-  twiml.message(`✅ Ticket #${ticketId} closed & user notified`);
-
-  return res.type("text/xml").send(twiml.toString()); // 🚨 MUST RETURN
-}
-
-  
-  
-  
-  
-  // 2. Check onboarding state 
-  const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
+try { // 1. Check onboarding state const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
 
 if (onboarding.rows.length > 0) {
   const step = onboarding.rows[0].step;
@@ -92,7 +37,7 @@ res.type("text/xml").send(twiml.toString());
   return;
 }
 
-// 3. Check if resident exists
+// 2. Check if resident exists
 const user = await pool.query(
   "SELECT * FROM residents WHERE phone = $1",
   [phone]
@@ -111,9 +56,76 @@ if (user.rows.length === 0) {
 
 const resident = user.rows[0];
 
+// 3. Staff done flow
+const msgLower = incomingMsg.toLowerCase();
 
+if (msgLower.startsWith("done")) {
+  if (!STAFF_NUMBERS.includes(phone)) {
+    twiml.message("❌ Not authorized");
+  } else {
+    const parts = msgLower.split(" ");
+    const ticketId = parts[1]?.replace("#", "");
 
-// 4. Rating flow
+    const result = await pool.query(
+      "UPDATE complaints SET status = 'closed', awaiting_rating = true WHERE id = $1 RETURNING resident_id",
+      [ticketId]
+    );
+
+    if (result.rowCount === 0) {
+      twiml.message("❌ Ticket not found");
+    } else {
+      const residentId = result.rows[0].resident_id;
+
+      // fetch resident phone
+      const resUser = await pool.query(
+        "SELECT phone FROM residents WHERE id = $1",
+        [residentId]
+      );
+
+      const userPhone = resUser.rows[0].phone;
+
+      // send message to USER (not staff)
+      const client = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+      await client.messages.create({
+        from: process.env.TWILIO_WHATSAPP_NUMBER,
+        to: `whatsapp:${userPhone}`,
+        body: `✅ Your complaint (Ticket #${ticketId}) is resolved.
+
+Please rate: 😡 😕 😐 🙂 😄` });
+
+// confirm to staff
+      twiml.message(`✅ Ticket #${ticketId} closed & user notified`);
+    }
+  }
+
+  res.type("text/xml").send(twiml.toString());
+  return;
+}
+
+// 4. Image handling (before rating & complaint)
+const numMedia = parseInt(req.body.NumMedia || "0");
+
+if (numMedia > 0) {
+  const mediaUrl = req.body.MediaUrl0;
+  const mediaType = req.body.MediaContentType0;
+
+  const result = await pool.query(
+    "INSERT INTO complaints (resident_id, message, image_url) VALUES ($1, $2, $3) RETURNING id",
+    [resident.id, incomingMsg || "(image)", mediaUrl]
+  );
+
+  const ticketId = result.rows[0].id;
+
+  twiml.message(`📸 Complaint with image received!
+
+Ticket ID: #${ticketId}`);
+
+res.type("text/xml").send(twiml.toString());
+  return;
+}
+
+// 5. Rating flow
 const emojiMap = {
   "😡": 1,
   "😕": 2,
@@ -160,3 +172,11 @@ res.type("text/xml").send(twiml.toString());
 } catch (err) { console.error(err); twiml.message("⚠️ Error occurred"); res.type("text/xml").send(twiml.toString()); } });
 
 app.listen(process.env.PORT || 3000, () => { console.log("Server running"); });
+
+/* SQL REQUIRED:
+
+CREATE TABLE residents ( id SERIAL PRIMARY KEY, phone VARCHAR(20) UNIQUE, flat_number VARCHAR(10) );
+
+CREATE TABLE onboarding ( phone VARCHAR(20) PRIMARY KEY, step VARCHAR(20) );
+
+CREATE TABLE complaints ( id SERIAL PRIMARY KEY, resident_id INTEGER, message TEXT, image_url TEXT, status VARCHAR(20) DEFAULT 'open', rating INTEGER, awaiting_rating BOOLEAN DEFAULT false, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ); */
