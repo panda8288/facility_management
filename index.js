@@ -7,8 +7,6 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const incomingMsg = req.body.Body;
-const fromUser = req.body.From;
 const client = twilio(accountSid, authToken);
 
 // ================= FIREBASE SETUP ================= 
@@ -26,9 +24,11 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
 const STAFF_NUMBERS = ["918390620818","919923508168"]; // replace with your staff numbers
 
 // ================= WEBHOOK ================= 
-app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); const phone = req.body.From.replace("whatsapp:", "");
+app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); 
+                                          const phone = req.body.From.replace("whatsapp:", "");
 
-const MessagingResponse = twilio.twiml.MessagingResponse; const twiml = new MessagingResponse();
+const MessagingResponse = twilio.twiml.MessagingResponse; 
+                                          const twiml = new MessagingResponse();
 
 try { console.log("Incoming:", incomingMsg); console.log("NumMedia:", req.body.NumMedia);
 
@@ -161,7 +161,7 @@ const mediaUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
 
-👤 From: ${fromUser};
+👤 From: ${phone};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
