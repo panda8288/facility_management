@@ -127,6 +127,7 @@ console.log(numMedia);
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
+  console.log(medialUrl);
      const message = `
 📢 *New Complaint*
 
@@ -134,13 +135,14 @@ if (numMedia > 0) {
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
-
+console.log(message);
 await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
   mediaUrl:[mediaUrl],
 });
+  console.log('Right After Sending Message')
 
   const mediaType = req.body.MediaContentType0;
 
