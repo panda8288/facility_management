@@ -23,6 +23,8 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejec
 
 const STAFF_NUMBERS = ["918390620818","919923508168"]; // replace with your staff numbers
 
+const SUPERVISOR_WHATSAPP='whatsapp:+918390620818';
+
 // ================= WEBHOOK ================= 
 app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); 
                                           const phone = req.body.From.replace("whatsapp:", "");
@@ -117,8 +119,24 @@ if (doneMatch) {
 // ================= IMAGE HANDLING =================
 const numMedia = Number(req.body.NumMedia);
 
+
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
+     const message = `
+📢 *New Complaint*
+
+👤 From: ${phone};
+📝 Message: ${incomingMsg};
+🕒 Time: ${new Date().toLocaleString()}
+`;
+
+await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+  mediaUrl:[mediaUrl],
+});
+
   const mediaType = req.body.MediaContentType0;
 
   console.log("Downloading from Twilio...");
@@ -156,7 +174,7 @@ if (numMedia > 0) {
 }
 
 // ================= NORMAL COMPLAINT =================
-const SUPERVISOR_WHATSAPP='whatsapp:+918390620818';
+
 const mediaUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
