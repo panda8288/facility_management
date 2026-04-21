@@ -175,10 +175,17 @@ await client.messages.create({
 
 // ================= NORMAL COMPLAINT =================
 
-const mediaUrl = req.body.MediaUrl0;
+     const result = await pool.query(
+  "INSERT INTO complaints (resident_id, message) VALUES ($1,$2) RETURNING id",
+  [resident.id, incomingMsg]
+);
+
+twiml.message(`Complaint registered. Ticket #${result.rows[0].id}`);
+     const mediaUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
 
+#️⃣ Ticket: #${result.rows[0].id}
 👤 From: ${phone};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
@@ -198,12 +205,7 @@ if (!mediaUrl) {
   mediaUrl:[mediaUrl],
 });
 };
-     const result = await pool.query(
-  "INSERT INTO complaints (resident_id, message) VALUES ($1,$2) RETURNING id",
-  [resident.id, incomingMsg]
-);
 
-twiml.message(`Complaint registered. Ticket #${result.rows[0].id}`);
 res.type("text/xml").send(twiml.toString());
 
 } catch (err) { console.error("ERROR:", err); twiml.message("Error occurred"); res.type("text/xml").send(twiml.toString()); } });
