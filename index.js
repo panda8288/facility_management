@@ -6,13 +6,14 @@ const app = express(); app.use(express.urlencoded({ extended: false }));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
-const STAFF_NUMBERS = ["9198XXXXXXX"];
+const STAFF_NUMBERS = ["+918390620818", "+919923508168"];
 
 app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body || "").trim(); const phone = req.body.From.replace("whatsapp:", "");
 
 const MessagingResponse = twilio.twiml.MessagingResponse; const twiml = new MessagingResponse();
 
-try { // 1. Check onboarding state const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
+try { // 1. Check onboarding state 
+  const onboarding = await pool.query( "SELECT * FROM onboarding WHERE phone = $1", [phone] );
 
 if (onboarding.rows.length > 0) {
   const step = onboarding.rows[0].step;
