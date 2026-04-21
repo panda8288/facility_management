@@ -21,7 +21,7 @@ const app = express(); app.use(express.urlencoded({ extended: false }));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
-const STAFF_NUMBERS = ["918390620818","919923508168"]; // replace with your staff numbers
+const STAFF_NUMBERS = ["+918390620818","+919923508168"]; // replace with your staff numbers
 
 const SUPERVISOR_WHATSAPP='whatsapp:+918390620818';
 
