@@ -156,8 +156,8 @@ const medialUrl = req.body.MediaUrl0;
      const message = `
 📢 *New Complaint*
 
-👤 From: ${fromUser}
-📝 Message: ${incomingMsg}
+👤 From: req.body.From;
+📝 Message: req.body.Body;
 🕒 Time: ${new Date().toLocaleString()}
 `;
 
