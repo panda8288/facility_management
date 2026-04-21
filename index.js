@@ -9,8 +9,9 @@ const admin = require("firebase-admin");
 // ================= FIREBASE SETUP ================= 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 console.log(serviceAccount.project_id);
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount),storageBucket:"gs://"+serviceAccount.project_id+".firebasestorage.com"});
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount),storageBucket:serviceAccount.project_id+".firebasestorage.com"});
 const bucket = admin.storage().bucket();
+console.log(bucket);
 
 // ================= APP SETUP ================= 
 const app = express(); app.use(express.urlencoded({ extended: false }));
