@@ -109,7 +109,12 @@ if (doneMatch) {
   await client.messages.create({
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
-    body: `Ticket #${ticketId} resolved. Rate: 😡 😕 😐 🙂 😄`
+    body: `Your Ticket #${ticketId} is resolved. Kindly Rate Service: 
+    1 -> 😡 
+    2 -> 😕
+    3 -> 😐
+    4 -> 🙂
+    5 -> 😄
   });
 
   twiml.message("Closed & user notified");
