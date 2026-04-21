@@ -1,4 +1,4 @@
-/ ================= FULL WORKING CODE (Twilio + Postgres + Firebase Images) ================= 
+// ================= FULL WORKING CODE (Twilio + Postgres + Firebase Images) ================= 
 require("dotenv").config();
 
 const express = require("express"); 
