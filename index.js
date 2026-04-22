@@ -185,6 +185,7 @@ if (!mediaUrl) {
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
+  mediaUrl:[publicUrl],
 });
 };
 
