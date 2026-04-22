@@ -127,21 +127,29 @@ console.log(numMedia);
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
-  console.log(mediaUrl);
      const message = `
 📢 *New Complaint*
 
+#️⃣ Ticket: #${result.rows[0].id}
 👤 From: ${phone};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
-console.log(message);
-await client.messages.create({
+
+if (!mediaUrl) {
+    await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+});
+
+  } else {await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
   body: message,
   mediaUrl:[mediaUrl],
 });
+};
   console.log('Right After Sending Message')
 
   const mediaType = req.body.MediaContentType0;
