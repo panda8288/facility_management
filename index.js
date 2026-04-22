@@ -163,6 +163,7 @@ if (numMedia > 0) {
     [resident.id, incomingMsg || "(image)", publicUrl]
   );
   const flat_number = await pool.query( "SELECT flat_number from residents where id = (select resident_id from complaints where id = $1)",[result.rows[0].id]);
+  console.log(flat_number);
   const message = `
 📢 *New Complaint*
 
