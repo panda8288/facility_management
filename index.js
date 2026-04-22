@@ -210,7 +210,7 @@ twiml.message(`Complaint registered. Ticket #${result.rows[0].id}`);
 📢 *New Complaint*
 
 #️⃣ Ticket: #${result.rows[0].id}
-👤 From: ${phone};
+👤 From: ${flat_number.rows[0].flat_number};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
