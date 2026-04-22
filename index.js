@@ -204,7 +204,8 @@ if (!mediaUrl) {
 
 twiml.message(`Complaint registered. Ticket #${result.rows[0].id}`);
      const mediaUrl = req.body.MediaUrl0;
-     const message = `
+     const flat_number = await pool.query( "SELECT flat_number from residents where id = (select resident_id from complaints where id = $1)",[result.rows[0].id]);
+  const message = `
 📢 *New Complaint*
 
 #️⃣ Ticket: #${result.rows[0].id}
