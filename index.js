@@ -123,6 +123,7 @@ if (doneMatch) {
 
 // ================= IMAGE HANDLING =================
 const numMedia = Number(req.body.NumMedia);
+
 console.log(numMedia);
 
 if (numMedia > 0) {
@@ -161,11 +162,12 @@ if (numMedia > 0) {
     "INSERT INTO complaints (resident_id, message, image_url) VALUES ($1,$2,$3) RETURNING id",
     [resident.id, incomingMsg || "(image)", publicUrl]
   );
+  const flat_number = await pool.query( "SELECT flat_number from residents where id = (select resident_id from complaints where id = $1)",[result.rows[0].id]);
   const message = `
 📢 *New Complaint*
 
 #️⃣ Ticket: #${result.rows[0].id}
-👤 From: ${phone};
+👤 From: ${flat_number};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
