@@ -167,7 +167,7 @@ if (numMedia > 0) {
 📢 *New Complaint*
 
 #️⃣ Ticket: #${result.rows[0].id}
-👤 From: ${flat_number};
+👤 From: ${flat_number.rows[0].flat_number};
 📝 Message: ${incomingMsg};
 🕒 Time: ${new Date().toLocaleString()}
 `;
