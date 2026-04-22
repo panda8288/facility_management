@@ -127,30 +127,8 @@ console.log(numMedia);
 
 if (numMedia > 0) {
   const mediaUrl = req.body.MediaUrl0;
-     const message = `
-📢 *New Complaint*
+     
 
-#️⃣ Ticket: #${result.rows[0].id}
-👤 From: ${phone};
-📝 Message: ${incomingMsg};
-🕒 Time: ${new Date().toLocaleString()}
-`;
-
-if (!mediaUrl) {
-    await client.messages.create({
-  from: "whatsapp:+14155238886",
-  to: SUPERVISOR_WHATSAPP,
-  body: message,
-});
-
-  } else {await client.messages.create({
-  from: "whatsapp:+14155238886",
-  to: SUPERVISOR_WHATSAPP,
-  body: message,
-  mediaUrl:[mediaUrl],
-});
-};
-  console.log('Right After Sending Message')
 
   const mediaType = req.body.MediaContentType0;
 
@@ -183,6 +161,29 @@ if (!mediaUrl) {
     "INSERT INTO complaints (resident_id, message, image_url) VALUES ($1,$2,$3) RETURNING id",
     [resident.id, incomingMsg || "(image)", publicUrl]
   );
+  const message = `
+📢 *New Complaint*
+
+#️⃣ Ticket: #${result.rows[0].id}
+👤 From: ${phone};
+📝 Message: ${incomingMsg};
+🕒 Time: ${new Date().toLocaleString()}
+`;
+
+if (!mediaUrl) {
+    await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+});
+
+  } else {await client.messages.create({
+  from: "whatsapp:+14155238886",
+  to: SUPERVISOR_WHATSAPP,
+  body: message,
+  mediaUrl:[mediaUrl],
+});
+};
 
   twiml.message(`Image complaint saved. Ticket #${result.rows[0].id}`);
   return res.type("text/xml").send(twiml.toString());
