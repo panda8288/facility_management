@@ -171,7 +171,7 @@ if (numMedia > 0) {
 `;
 
 if (!mediaUrl) {
-  console.log('In if Block');
+
     await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
@@ -180,6 +180,7 @@ if (!mediaUrl) {
 
   } else {
     console.log('In else Block');
+  console.log(mediaUrl);
   await client.messages.create({
   from: "whatsapp:+14155238886",
   to: SUPERVISOR_WHATSAPP,
