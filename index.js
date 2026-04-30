@@ -192,12 +192,7 @@ if (!mediaUrl) {
 });
 };
 
-  twiml.message(`📢 *New Image Complaint*
-
-#️⃣ Ticket: #${result.rows[0].id}
-👤 From: ${flat_number.rows[0].flat_number};
-📝 Message: ${incomingMsg};
-🕒 Time: ${new Date().toLocaleString()}`);
+  twiml.message(`Your Complaint has been registered. Kindly use Ticket #${result.rows[0].id} for any further communication.`);
   return res.type("text/xml").send(twiml.toString());
 }
 
@@ -208,7 +203,7 @@ if (!mediaUrl) {
   [resident.id, incomingMsg]
 );
 
-twiml.message(`Complaint registered. Ticket #${result.rows[0].id}`);
+twiml.message(`Your Complaint has been registered. Kindly use Ticket #${result.rows[0].id} for any further communication.`);
      const mediaUrl = req.body.MediaUrl0;
      const flat_number = await pool.query( "SELECT flat_number from residents where id = (select resident_id from complaints where id = $1)",[result.rows[0].id]);
   const message = `
