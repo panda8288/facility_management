@@ -66,7 +66,7 @@ if (user.rows.length === 0) {
     [phone]
   );
 
-  twiml.message("Enter your flat number (e.g. A-101)");
+  twiml.message("Please enter your flat number for 1 time registration (e.g. A-101).");
   return res.type("text/xml").send(twiml.toString());
 }
 
@@ -78,7 +78,7 @@ const doneMatch = msgLower.match(/^done\s+#?(\d+)$/);
 
 if (doneMatch) {
   if (!STAFF_NUMBERS.includes(phone)) {
-    twiml.message("Not authorized");
+    twiml.message("⛔ Not authorized!");
     return res.type("text/xml").send(twiml.toString());
   }
 
@@ -90,7 +90,7 @@ if (doneMatch) {
   );
 
   if (result.rowCount === 0) {
-    twiml.message("Ticket not found");
+    twiml.message("⚠️ Ticket not found!");
     return res.type("text/xml").send(twiml.toString());
   }
 
@@ -109,7 +109,7 @@ if (doneMatch) {
   await client.messages.create({
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
-    body: `Your Ticket *#${ticketId}* is resolved. \n Kindly Rate Service: 
+    body: `Your Ticket *#${ticketId}* is resolved. ✅ \n Kindly Rate Service: 
     1  ➡️  😡 
     2  ➡️  😕
     3  ➡️  😐
@@ -117,7 +117,7 @@ if (doneMatch) {
     5  ➡️  😄`
   });
 
-  twiml.message("Closed & user notified");
+  twiml.message("Ticket Closed & User notified.");
   return res.type("text/xml").send(twiml.toString());
 }
 
@@ -192,7 +192,12 @@ if (!mediaUrl) {
 });
 };
 
-  twiml.message(`Image complaint saved. Ticket #${result.rows[0].id}`);
+  twiml.message(`📢 *New Image Complaint*
+
+#️⃣ Ticket: #${result.rows[0].id}
+👤 From: ${flat_number.rows[0].flat_number};
+📝 Message: ${incomingMsg};
+🕒 Time: ${new Date().toLocaleString()}`);
   return res.type("text/xml").send(twiml.toString());
 }
 
