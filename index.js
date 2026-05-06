@@ -244,6 +244,12 @@ app.get("/dashboard", async (req, res) => {
     const total = await pool.query("SELECT COUNT(*) FROM complaints");
     const open = await pool.query("SELECT COUNT(*) FROM complaints WHERE status IS NULL OR status != 'closed'");
     const closed = await pool.query("SELECT COUNT(*) FROM complaints WHERE status = 'closed'");
+    const overdue = await pool.query(`
+  SELECT COUNT(*) 
+  FROM complaints 
+  WHERE (status IS NULL OR status != 'closed')
+  AND created_at <= NOW() - INTERVAL '24 hours'
+`);
 
     const recent = await pool.query(`
       SELECT c.id, r.flat_number, c.message, c.status, c.created_at
@@ -327,6 +333,17 @@ app.get("/dashboard", async (req, res) => {
       color: green;
       font-weight: bold;
     }
+    .icon {
+    font-size: 29px;
+    margin-bottom: 8px;
+    }
+    .card.overdue {
+  border-left: 5px solid #e74c3c;
+}
+
+.card.overdue h2 {
+  color: #e74c3c;
+}
   </style>
 </head>
 <body>
@@ -334,15 +351,25 @@ app.get("/dashboard", async (req, res) => {
   <h1>📊 Society Dashboard</h1>
 
   <div class="cards">
+      <a href="/complaints?status=overdue" target="_blank" style="text-decoration:none; color:inherit;">
+  <div class="card">
+    <div class="icon">⏰</div>
+    <h2>${overdue.rows[0].count}</h2>
+    <p>Overdue</p>
+  </div>
+</a>
       <div class="card" onclick="window.open('/complaints','_blank')" style="cursor:pointer;">
+      <div class="icon">🧾</div>
       <h2>${total.rows[0].count}</h2>
       <p>Total Complaints</p>
     </div>
     <div class="card" onclick="window.open('/complaints?status=open','_blank')" style="cursor:pointer;">
+    <div class="icon">🔧</div>
       <h2>${open.rows[0].count}</h2>
       <p>Open</p>
     </div>
     <div class="card">
+    <div class="icon">✅</div>
       <h2>${closed.rows[0].count}</h2>
       <p>Closed</p>
     </div>
@@ -395,6 +422,9 @@ app.get("/complaints", async (req, res) => {
   if (status === "open") {
     query += ` WHERE c.status IS NULL OR c.status != 'closed'`;
   }
+  if (status === "overdue") {
+    query += ` WHERE (c.status IS NULL OR c.status != 'closed') AND c.created_at <= NOW() - INTERVAL '24 hours'`;
+  }
 
   query += ` ORDER BY c.id DESC`;
 
@@ -435,7 +465,7 @@ app.get("/complaints", async (req, res) => {
     <td>${r.status || "open"}</td>
     <td>
 
-      ${r.status !== "closed" ? `
+      ${r.status !== "closed" && new Date(r.created_at) < new Date(Date.now() - 24*60*60*1000) ?  `
         <form method="POST" action="/close/${r.id}">
           <button onclick="return confirm('Close this ticket?')">Close</button>
         </form>
