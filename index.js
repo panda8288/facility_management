@@ -328,10 +328,12 @@ app.get("/dashboard", async (req, res) => {
   <h1>📊 Society Dashboard</h1>
 
   <div class="cards">
-    <div class="card" onclick="window.open('/complaints',''_blank')" style="cursor:pointer;">
+    <a href="/complaints" target="_blank" style="text-decoration:none;">
+    <div class="card" style="cursor:pointer;">
       <h2>${total.rows[0].count}</h2>
       <p>Total Complaints</p>
     </div>
+    </a>
     <div class="card" onclick="window.open('/complaints?status=open',''_blank')" style="cursor:pointer;">
       <h2>${open.rows[0].count}</h2>
       <p>Open</p>
