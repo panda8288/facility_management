@@ -263,7 +263,6 @@ app.get("/dashboard", async (req, res) => {
 <html>
 <head>
   <title>Society Dashboard</title>
-  <p>Test: 🧾 📋 🔧 🛠️ ⏰ ⏱️</p>
   <style>
     body {
       font-family: Arial, sans-serif, "Seoge UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
@@ -352,13 +351,7 @@ app.get("/dashboard", async (req, res) => {
   <h1>📊 Society Dashboard</h1>
 
   <div class="cards">
-      <a href="/complaints?status=overdue" target="_blank" style="text-decoration:none; color:inherit;">
-  <div class="card">
-    <div class="icon">⏰</div>
-    <h2>${overdue.rows[0].count}</h2>
-    <p>Overdue</p>
-  </div>
-</a>
+      
       <div class="card" onclick="window.open('/complaints','_blank')" style="cursor:pointer;">
       <div class="icon">🧾</div>
       <h2>${total.rows[0].count}</h2>
@@ -369,6 +362,11 @@ app.get("/dashboard", async (req, res) => {
       <h2>${open.rows[0].count}</h2>
       <p>Open</p>
     </div>
+   <div class="card" onclick="window.open('/complaints?status=overdue','_blank')" style="cursor:pointer;">
+    <div class="icon">⏰</div>
+    <h2>${overdue.rows[0].count}</h2>
+    <p>Overdue</p>
+   </div>
     <div class="card">
     <div class="icon">✅</div>
       <h2>${closed.rows[0].count}</h2>
