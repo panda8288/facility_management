@@ -34,6 +34,38 @@ const MessagingResponse = twilio.twiml.MessagingResponse;
 
 try { console.log("Incoming:", incomingMsg); console.log("NumMedia:", req.body.NumMedia);
 
+// ================= DASHBOARD =================
+app.get("/dashboard", async (req, res) => {
+  try {
+    const total = await pool.query("SELECT COUNT(*) FROM complaints");
+    const open = await pool.query("SELECT COUNT(*) FROM complaints WHERE status IS NULL OR status != 'closed'");
+    const closed = await pool.query("SELECT COUNT(*) FROM complaints WHERE status = 'closed'");
+
+    const recent = await pool.query(`
+      SELECT c.id, r.flat_number, c.message, c.status, c.created_at
+      FROM complaints c
+      JOIN residents r ON r.id = c.resident_id
+      ORDER BY c.id DESC LIMIT 10
+    `);
+
+    res.send(`
+      <h1>📊 Dashboard</h1>
+      <p>Total: ${total.rows[0].count}</p>
+      <p>Open: ${open.rows[0].count}</p>
+      <p>Closed: ${closed.rows[0].count}</p>
+
+      <h2>Recent</h2>
+      ${recent.rows.map(r => `
+        <p>#${r.id} | ${r.flat_number} | ${r.message} | ${r.status || "open"}</p>
+      `).join("")}
+    `);
+
+  } catch (err) {
+    console.error(err);
+    res.send("Dashboard error");
+  }
+});
+
 // ================= ONBOARDING =================
 const onboarding = await pool.query(
   "SELECT * FROM onboarding WHERE phone = $1",
