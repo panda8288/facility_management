@@ -251,16 +251,117 @@ app.get("/dashboard", async (req, res) => {
     `);
 
     res.send(`
-      <h1>📊 Dashboard</h1>
-      <p>Total: ${total.rows[0].count}</p>
-      <p>Open: ${open.rows[0].count}</p>
-      <p>Closed: ${closed.rows[0].count}</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Society Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .card {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card h2 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .card p {
+      margin: 5px 0 0;
+      color: #666;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #2c3e50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+    .status-open {
+      color: red;
+      font-weight: bold;
+    }
+    .status-closed {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
 
-      <h2>Recent</h2>
-      ${recent.rows.map(r => `
-        <p>#${r.id} | ${r.flat_number} | ${r.message} | ${r.status || "open"}</p>
-      `).join("")}
-    `);
+  <h1>📊 Society Dashboard</h1>
+
+  <div class="cards">
+    <div class="card">
+      <h2>${total.rows[0].count}</h2>
+      <p>Total Complaints</p>
+    </div>
+    <div class="card">
+      <h2>${open.rows[0].count}</h2>
+      <p>Open</p>
+    </div>
+    <div class="card">
+      <h2>${closed.rows[0].count}</h2>
+      <p>Closed</p>
+    </div>
+  </div>
+
+  <h2>Recent Complaints</h2>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Flat</th>
+      <th>Message</th>
+      <th>Status</th>
+      <th>Time</th>
+    </tr>
+
+    ${recent.rows.map(r => `
+      <tr>
+        <td>#${r.id}</td>
+        <td>${r.flat_number}</td>
+        <td>${r.message}</td>
+        <td class="${r.status === 'closed' ? 'status-closed' : 'status-open'}">
+          ${r.status || "open"}
+        </td>
+        <td>${new Date(r.created_at).toLocaleString()}</td>
+      </tr>
+    `).join("")}
+
+  </table>
+
+</body>
+</html>
+`);
 
   } catch (err) {
     console.error(err);
