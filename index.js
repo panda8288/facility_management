@@ -272,6 +272,7 @@ app.get("/dashboard", async (req, res) => {
     }
     .card {
       flex: 1;
+      min-width:0;
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -322,11 +323,11 @@ app.get("/dashboard", async (req, res) => {
   <div class="cards">
     <div class="card">
       <h2><a href="/complaints" target="_blank">
-      ${total.rows[0].count}</h2>
+      ${total.rows[0].count}</a></h2>
       <p>Total Complaints</p>
     </div>
     <div class="card">
-      <h2><a href="/complaints?status=open" target="_blank">${open.rows[0].count}</h2>
+      <h2><a href="/complaints?status=open" target="_blank">${open.rows[0].count}</a></h2>
       <p>Open</p>
     </div>
     <div class="card">
