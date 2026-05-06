@@ -87,7 +87,7 @@ if (doneMatch) {
   const ticketId = doneMatch[1];
 
   const result = await pool.query(
-    "UPDATE complaints SET status='closed', awaiting_rating=true WHERE id=$1 RETURNING resident_id",
+    "UPDATE complaints SET status='closed',closed_at=NOW(), awaiting_rating=true WHERE id=$1 RETURNING resident_id",
     [ticketId]
   );
 
@@ -198,7 +198,28 @@ if (!mediaUrl) {
   return res.type("text/xml").send(twiml.toString());
 }
 
-// ================= NORMAL COMPLAINT =================
+// ================= REOPEN =================
+app.post("/reopen/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const result = await pool.query(
+    `UPDATE complaints
+     SET status='reopened'
+     WHERE id=$1
+     AND status='closed'
+     AND closed_at >= NOW() - INTERVAL '24 hours'
+     RETURNING id`,
+    [id]
+  );
+
+  if (result.rowCount === 0) {
+    return res.send("⛔ Cannot reopen (24hr window passed or invalid ticket)");
+  }
+
+  res.redirect("/complaints");
+});
+     
+     // ================= NORMAL COMPLAINT =================
 
      const result = await pool.query(
   "INSERT INTO complaints (resident_id, message) VALUES ($1,$2) RETURNING id",
@@ -426,20 +447,28 @@ app.get("/complaints", async (req, res) => {
     </tr>
 
     ${result.rows.map(r => `
-      <tr>
-        <td>#${r.id}</td>
-        <td>${r.flat_number}</td>
-        <td>${r.message}</td>
-        <td>${r.status || "open"}</td>
-        <td>
-          ${r.status !== "closed" ? `
-            <form method="POST" action="/close/${r.id}">
-              <button type="submit">Close</button>
-            </form>
-          ` : "—"}
-        </td>
-      </tr>
-    `).join("")}
+  <tr>
+    <td>#${r.id}</td>
+    <td>${r.flat_number}</td>
+    <td>${r.message}</td>
+    <td>${r.status || "open"}</td>
+    <td>
+
+      ${r.status !== "closed" ? `
+        <form method="POST" action="/close/${r.id}">
+          <button onclick="return confirm('Close this ticket?')">Close</button>
+        </form>
+      ` : ""}
+
+      ${r.status === "closed" ? `
+        <form method="POST" action="/reopen/${r.id}">
+          <button onclick="return confirm('Reopen this ticket?')">Reopen</button>
+        </form>
+      ` : ""}
+
+    </td>
+  </tr>
+`).join("")}
 
   </table>
 
@@ -463,9 +492,16 @@ app.get("/export", async (req, res) => {
   const status = req.query.status;
 
   let query = `
-    SELECT c.id, r.flat_number, c.message, c.status, c.created_at
-    FROM complaints c
-    JOIN residents r ON r.id = c.resident_id
+    SELECT 
+  c.id, 
+  r.flat_number, 
+  c.message, 
+  c.status, 
+  c.created_at,
+  c.closed_at,
+  (c.closed_at >= NOW() - INTERVAL '24 hours') AS can_reopen
+FROM complaints c
+JOIN residents r ON r.id = c.resident_id
   `;
 
   if (status === "open") {
