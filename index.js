@@ -287,6 +287,13 @@ app.get("/dashboard", async (req, res) => {
       margin: 5px 0 0;
       color: #666;
     }
+    .card-link {
+    text-decoration: none;
+    color: #2c3e50;
+    }
+    .card-link:hover {
+    color: #007bff;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -321,13 +328,12 @@ app.get("/dashboard", async (req, res) => {
   <h1>📊 Society Dashboard</h1>
 
   <div class="cards">
-    <div class="card">
-      <h2><a href="/complaints" target="_blank">
-      ${total.rows[0].count}</a></h2>
+    <div class="card" onclick="window.open('/complaints',''_blank')" style="cursor:pointer;">
+      <h2>${total.rows[0].count}</h2>
       <p>Total Complaints</p>
     </div>
-    <div class="card">
-      <h2><a href="/complaints?status=open" target="_blank">${open.rows[0].count}</a></h2>
+    <div class="card" onclick="window.open('/complaints?status=open',''_blank')" style="cursor:pointer;">
+      <h2>${open.rows[0].count}</h2>
       <p>Open</p>
     </div>
     <div class="card">
