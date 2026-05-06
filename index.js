@@ -198,26 +198,7 @@ if (!mediaUrl) {
   return res.type("text/xml").send(twiml.toString());
 }
 
-// ================= REOPEN =================
-app.post("/reopen/:id", async (req, res) => {
-  const id = req.params.id;
 
-  const result = await pool.query(
-    `UPDATE complaints
-     SET status='reopened'
-     WHERE id=$1
-     AND status='closed'
-     AND closed_at >= NOW() - INTERVAL '24 hours'
-     RETURNING id`,
-    [id]
-  );
-
-  if (result.rowCount === 0) {
-    return res.send("⛔ Cannot reopen (24hr window passed or invalid ticket)");
-  }
-
-  res.redirect("/complaints");
-});
      
      // ================= NORMAL COMPLAINT =================
 
@@ -519,6 +500,27 @@ JOIN residents r ON r.id = c.resident_id
   res.header("Content-Type", "text/csv");
   res.attachment("complaints.csv");
   return res.send(csv);
+});
+
+// ================= REOPEN =================
+app.post("/reopen/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const result = await pool.query(
+    `UPDATE complaints
+     SET status='reopened'
+     WHERE id=$1
+     AND status='closed'
+     AND closed_at >= NOW() - INTERVAL '24 hours'
+     RETURNING id`,
+    [id]
+  );
+
+  if (result.rowCount === 0) {
+    return res.send("⛔ Cannot reopen (24hr window passed or invalid ticket)");
+  }
+
+  res.redirect("/complaints");
 });
 
 app.listen(process.env.PORT || 3000, () => { console.log("Server running"); });
