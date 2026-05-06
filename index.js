@@ -294,6 +294,10 @@ app.get("/dashboard", async (req, res) => {
     .card-link:hover {
     color: #007bff;
     }
+    .card-hover: {
+    transform: translateY(-3px);
+    transition:0.2s;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -334,7 +338,7 @@ app.get("/dashboard", async (req, res) => {
       <p>Total Complaints</p>
     </div>
     </a>
-    <div class="card" onclick="window.open('/complaints?status=open',''_blank')" style="cursor:pointer;">
+    <div class="card" onclick="window.open('/complaints?status=open','_blank')" style="cursor:pointer;">
       <h2>${open.rows[0].count}</h2>
       <p>Open</p>
     </div>
