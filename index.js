@@ -321,11 +321,12 @@ app.get("/dashboard", async (req, res) => {
 
   <div class="cards">
     <div class="card">
-      <h2>${total.rows[0].count}</h2>
+      <h2><a href="/complaints" target="_blank">
+      ${total.rows[0].count}</h2>
       <p>Total Complaints</p>
     </div>
     <div class="card">
-      <h2>${open.rows[0].count}</h2>
+      <h2><a href="/complaints?status=open" target="_blank">${open.rows[0].count}</h2>
       <p>Open</p>
     </div>
     <div class="card">
@@ -367,6 +368,110 @@ app.get("/dashboard", async (req, res) => {
     console.error(err);
     res.send("Dashboard error");
   }
+});
+
+app.get("/complaints", async (req, res) => {
+  const status = req.query.status;
+
+  let query = `
+    SELECT c.id, r.flat_number, c.message, c.status, c.created_at
+    FROM complaints c
+    JOIN residents r ON r.id = c.resident_id
+  `;
+
+  if (status === "open") {
+    query += ` WHERE c.status IS NULL OR c.status != 'closed'`;
+  }
+
+  query += ` ORDER BY c.id DESC`;
+
+  const result = await pool.query(query);
+
+  res.send(`
+  <html>
+  <head>
+    <title>Complaints</title>
+    <style>
+      body { font-family: Arial; padding: 20px; background:#f4f6f8; }
+      table { width:100%; border-collapse: collapse; background:white; }
+      th, td { padding:10px; border:1px solid #ddd; }
+      th { background:#2c3e50; color:white; }
+      button { padding:5px 10px; cursor:pointer; }
+    </style>
+  </head>
+  <body>
+
+  <h2>Complaints ${status === "open" ? "(Open Only)" : ""}</h2>
+
+  <a href="/export${status === "open" ? "?status=open" : ""}">
+    <button>⬇ Export CSV</button>
+  </a>
+
+  <br><br>
+
+  <table>
+    <tr>
+      <th>ID</th><th>Flat</th><th>Message</th><th>Status</th><th>Action</th>
+    </tr>
+
+    ${result.rows.map(r => `
+      <tr>
+        <td>#${r.id}</td>
+        <td>${r.flat_number}</td>
+        <td>${r.message}</td>
+        <td>${r.status || "open"}</td>
+        <td>
+          ${r.status !== "closed" ? `
+            <form method="POST" action="/close/${r.id}">
+              <button type="submit">Close</button>
+            </form>
+          ` : "—"}
+        </td>
+      </tr>
+    `).join("")}
+
+  </table>
+
+  </body>
+  </html>
+  `);
+});
+
+app.post("/close/:id", async (req, res) => {
+  const id = req.params.id;
+
+  await pool.query(
+    "UPDATE complaints SET status='closed', closed_at=NOW() WHERE id=$1",
+    [id]
+  );
+
+  res.redirect("/complaints");
+});
+
+app.get("/export", async (req, res) => {
+  const status = req.query.status;
+
+  let query = `
+    SELECT c.id, r.flat_number, c.message, c.status, c.created_at
+    FROM complaints c
+    JOIN residents r ON r.id = c.resident_id
+  `;
+
+  if (status === "open") {
+    query += ` WHERE c.status IS NULL OR c.status != 'closed'`;
+  }
+
+  const result = await pool.query(query);
+
+  let csv = "ID,Flat,Message,Status,Time\n";
+
+  result.rows.forEach(r => {
+    csv += `${r.id},${r.flat_number},"${r.message}",${r.status || "open"},${r.created_at}\n`;
+  });
+
+  res.header("Content-Type", "text/csv");
+  res.attachment("complaints.csv");
+  return res.send(csv);
 });
 
 app.listen(process.env.PORT || 3000, () => { console.log("Server running"); });
