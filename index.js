@@ -348,7 +348,7 @@ app.get("/dashboard", async (req, res) => {
 </head>
 <body>
 
-  <h1>📊 Society Dashboard</h1>
+  <h1>📊 KALPATARU JADE RESIDENCES TOWER - A FACILITIES DASHBOARD</h1>
 
   <div class="cards">
       
