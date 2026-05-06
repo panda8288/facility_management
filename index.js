@@ -263,9 +263,10 @@ app.get("/dashboard", async (req, res) => {
 <html>
 <head>
   <title>Society Dashboard</title>
+  <p>Test: 🧾 📋 🔧 🛠️ ⏰ ⏱️</p>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial, sans-serif, "Seoge UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
       background: #f4f6f8;
       margin: 0;
       padding: 20px;
