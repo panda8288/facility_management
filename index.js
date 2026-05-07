@@ -52,7 +52,7 @@ if (onboarding.rows.length > 0) {
 
   await pool.query("DELETE FROM onboarding WHERE phone = $1", [phone]);
 
-  twiml.message(`✅ Registered!📋\n🏠 Flat: ${flat}\n\n🤖What can we help you with?💬 `);
+  twiml.message(`✅ Registered!📋\n🏠 Flat: ${flat}\n\n💬What can we help you with? `);
   return res.type("text/xml").send(twiml.toString());
 }
 
