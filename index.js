@@ -154,7 +154,7 @@ try {
             const result = await pool.query(
             "UPDATE complaints SET rating=$1, awaiting_rating=false WHERE id=$2 RETURNING resident_id",
             [rating,ticketId]);
-            twiml.message("Thank you for your feedback.🙏");
+            twiml.message(`Thank you for your feedback.🙏`);
             return res.status(200).send(`Thank you for your feedback.🙏`);
         }
           
