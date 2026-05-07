@@ -97,6 +97,7 @@ if (doneMatch) {
   }
 
   const residentId = result.rows[0].resident_id;
+  
 
   const resUser = await pool.query(
     "SELECT phone FROM residents WHERE id=$1",
@@ -112,7 +113,7 @@ if (doneMatch) {
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
     ContentSid: `HX6196df3261f248a01dc031ad52c7c1ca`,
-    ContentVariables: JSON.stringify({1: #${ticketId}})
+    ContentVariables: JSON.stringify({1: ticketId})
     //body: `Your Ticket  is resolved. ✅`
   });
 
