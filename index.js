@@ -109,13 +109,31 @@ if (doneMatch) {
     process.env.TWILIO_AUTH_TOKEN
   );
 
-  await client.messages.create({
+/*  await client.messages.create({
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
-    ContentSid: `HX6196df3261f248a01dc031ad52c7c1ca`,
+    ContentSid: 'HX6196df3261f248a01dc031ad52c7c1ca',
     ContentVariables: JSON.stringify({1: ticketId})
     //body: `Your Ticket  is resolved. ✅`
-  });
+  }); */
+  async function sendWhatsAppTemplate() {
+  try {
+    const message = await client.messages.create({
+      from: process.env.TWILIO_WHATSAPP_NUMBER,
+      to: `whatsapp:${resUser.rows[0].phone}`,
+      contentSid: 'HX6196df3261f248a01dc031ad52c7c1ca',
+      contentVariables: JSON.stringify({
+        "1": ticketId      })
+    });
+
+    console.log('Message sent successfully!');
+    console.log('Message SID:', message.sid);
+  } catch (error) {
+    console.error('Error sending message:', error.message);
+  }
+}
+
+sendWhatsAppTemplate();
 
   twiml.message("Ticket Closed & User notified.");
   return res.type("text/xml").send(twiml.toString());
