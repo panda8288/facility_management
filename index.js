@@ -7,7 +7,7 @@ const axios = require("axios");
 const admin = require("firebase-admin");
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
+const client = twilio(accountSid, authToken,{logLevel: 'debug'});
 
 // ================= FIREBASE SETUP ================= 
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
