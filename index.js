@@ -116,13 +116,14 @@ if (doneMatch) {
     ContentVariables: JSON.stringify({1: ticketId})
     //body: `Your Ticket  is resolved. ✅`
   }); */
-  async function sendWhatsAppTemplate(sender,receiver,content_sid,content_var) {
+  async function sendWhatsAppTemplate() {
   try {
     const message = await client.messages.create({
-      from: sender,
-      to: `whatsapp:${receiver}`,
-      contentSid: content_sid,
-      contentVariables: JSON.stringify(content_var)
+      from: process.env.TWILIO_WHATSAPP_NUMBER,
+      to: `whatsapp:${resUser.rows[0].phone}`,
+      contentSid: 'HX76a54e7babddd94f6a5c00d91cbe62d0',
+      contentVariables: JSON.stringify({
+        "1": ticketId      })
     });
 
     console.log('Message sent successfully!');
@@ -132,7 +133,7 @@ if (doneMatch) {
   }
 }
 
-sendWhatsAppTemplate(process.env.TWILIO_WHATSAPP_NUMBER,resUser.rows[0].phone,'HX76a54e7babddd94f6a5c00d91cbe62d0',{"1": ticketId});
+sendWhatsAppTemplate();
 
   twiml.message("Ticket Closed & User notified.");
   return res.type("text/xml").send(twiml.toString());
