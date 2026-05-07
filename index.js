@@ -138,7 +138,33 @@ sendWhatsAppTemplate();
   twiml.message("Ticket Closed & User notified.");
   return res.type("text/xml").send(twiml.toString());
 }
+// ================= FEEDBACK ===================
+try {
 
+    if (req && req.body && req.body.Body && req.body.Body.ButtonPayload !== undefined) {
+        console.log("Found ButtonPayload:", req.body.Body.ButtonPayload);
+        const payload = req.body.Body.ButtonPayload || '';
+        const regex = /^Feedback_(Happy|Average|Unhappy)_(\d+)$/;
+        const match = payload.match(regex);
+        if (match) {
+            const rating = match[1];
+            console.log(rating);
+            const ticketId = match[2];
+            console.log(ticketId);
+            const result = await pool.query(
+            "UPDATE complaints SET rating=$1, awaiting_rating=false WHERE id=$2 RETURNING resident_id",
+            [rating],[ticketId]}
+  );
+          return res.status(200).send(`Thank you for your feedback.🙏`);
+ 
+    } else {
+        console.log("ButtonPayload not found in response.");
+    }
+} catch (error) {
+    console.error("Request failed:", error.message);
+}
+
+     
 // ================= IMAGE HANDLING =================
 const numMedia = Number(req.body.NumMedia);
 
