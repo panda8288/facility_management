@@ -68,7 +68,7 @@ if (user.rows.length === 0) {
     [phone]
   );
 
-  twiml.message("Please enter your flat number for 1 time registration (e.g. A-101).");
+  twiml.message("👋 Welcome! Before we proceed, please enter your flat number for a 1-time registration (e.g., A-101) 🔑🚪");
   return res.type("text/xml").send(twiml.toString());
 }
 
