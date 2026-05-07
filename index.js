@@ -76,7 +76,7 @@ const resident = user.rows[0];
 const msgLower = incomingMsg.toLowerCase();
 
 // ================= STAFF DONE =================
-const doneMatch = msgLower.match(/^done\s+#?(\d+)$/);
+const doneMatch = msgLower.match(/^done\s*#?(\d+)$/); //match strings that represent a command to mark an item as "done," followed by a numeric ID.
 
 if (doneMatch) {
   if (!STAFF_NUMBERS.includes(phone)) {
