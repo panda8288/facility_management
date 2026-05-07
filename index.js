@@ -32,7 +32,7 @@ app.post("/webhook", async (req, res) => { const incomingMsg = (req.body.Body ||
 const MessagingResponse = twilio.twiml.MessagingResponse; 
                                           const twiml = new MessagingResponse();
 
-try { console.log("Incoming:", incomingMsg); console.log("NumMedia:", req.body.NumMedia); console.log(JSON.stringify(req.body,null,2));
+try { console.log("Incoming:", incomingMsg); console.log("NumMedia:", req.body.NumMedia); console.log(req);
 
 
 
