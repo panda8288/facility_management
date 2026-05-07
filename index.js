@@ -121,7 +121,7 @@ if (doneMatch) {
     const message = await client.messages.create({
       from: process.env.TWILIO_WHATSAPP_NUMBER,
       to: `whatsapp:${resUser.rows[0].phone}`,
-      contentSid: 'HX6196df3261f248a01dc031ad52c7c1ca',
+      contentSid: 'HX76a54e7babddd94f6a5c00d91cbe62d0',
       contentVariables: JSON.stringify({
         "1": ticketId      })
     });
