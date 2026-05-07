@@ -141,9 +141,9 @@ sendWhatsAppTemplate();
 // ================= FEEDBACK ===================
 try {
 
-    if (req && req.body && req.body.Body && req.body.Body.ButtonPayload !== undefined) {
-        console.log("Found ButtonPayload:", req.body.Body.ButtonPayload);
-        const payload = req.body.Body.ButtonPayload || '';
+    if (req && req.body && req.body && req.body.ButtonPayload !== undefined) {
+        console.log("Found ButtonPayload:", req.body.ButtonPayload);
+        const payload = req.body.ButtonPayload || '';
         const regex = /^Feedback_(Happy|Average|Unhappy)_(\d+)$/;
         const match = payload.match(regex);
         if (match) {
