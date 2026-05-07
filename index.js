@@ -76,7 +76,7 @@ const resident = user.rows[0];
 const msgLower = incomingMsg.toLowerCase();
 
 // ================= STAFF DONE =================
-const doneMatch = msgLower.match(/^done\s*#?(\d+)$/); //match strings that represent a command to mark an item as "done," followed by a numeric ID.
+const doneMatch = msgLower.match(/^(done|close)\s*#?(\d+)$/); //match strings that represent a command to mark an item as "done," followed by a numeric ID.
 
 if (doneMatch) {
   if (!STAFF_NUMBERS.includes(phone)) {
@@ -84,7 +84,7 @@ if (doneMatch) {
     return res.type("text/xml").send(twiml.toString());
   }
 
-  const ticketId = doneMatch[1];
+  const ticketId = doneMatch[2];
 
   const result = await pool.query(
     "UPDATE complaints SET status='closed',closed_at=NOW(), awaiting_rating=true WHERE id=$1 RETURNING resident_id",
