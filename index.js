@@ -153,8 +153,10 @@ try {
             console.log(ticketId);
             const result = await pool.query(
             "UPDATE complaints SET rating=$1, awaiting_rating=false WHERE id=$2 RETURNING resident_id",
-            [rating],[ticketId]);}
-          return res.status(200).send(`Thank you for your feedback.🙏`);
+            [rating,ticketId]);
+            return res.status(200).send(`Thank you for your feedback.🙏`);
+        }
+          
  
     } else {
         console.log("ButtonPayload not found in response.");
