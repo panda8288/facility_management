@@ -111,9 +111,9 @@ if (doneMatch) {
   await client.messages.create({
     from: process.env.TWILIO_WHATSAPP_NUMBER,
     to: `whatsapp:${resUser.rows[0].phone}`,
-    //ContentSid: `HXb718e7782862310edab30bbe57d54960`,
-    //ContentVariables: JSON.stringify({1: ticketId}),
-    body: `Your Ticket *#${ticketId}* is resolved. ✅`
+    ContentSid: `HX6196df3261f248a01dc031ad52c7c1ca`,
+    ContentVariables: JSON.stringify({1: *#${ticketId}*})
+    //body: `Your Ticket  is resolved. ✅`
   });
 
   twiml.message("Ticket Closed & User notified.");
